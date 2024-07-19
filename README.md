@@ -14,12 +14,12 @@
 **Setting up an environment file**
 
 Create a file named `.env` containing these variables
-```// Login configuration
-YOUR_EMAIL = // opensports.net email
-YOUR_PASSWORD = // opensports.net password
+```# Login configuration
+YOUR_EMAIL = OPENSPORTS_EMAIL
+YOUR_PASSWORD = OPENSPORTS_PASSWORD
 
-// Email configuration
-EMAIL_USER = // notifier origin email
-// I suggest you make an app password for your gmail
-EMAIL_PASS = // notifier origin email password, 
-NOTIFICATION_EMAIL = // Notification reciever```
+# Email configuration
+EMAIL_USER = NOTIFICATION@EMAIL.COM # notifier origin email,
+# I suggest you make an app password for your gmail
+EMAIL_PASS = PLACEHOLDER_PASSWORD # notifier origin email password, 
+NOTIFICATION_EMAIL = NOTIFICATION@EMAIL.COM # Notification reciever```
