@@ -25,12 +25,16 @@ async function checkJoinability(page, event) {
         if (waitlistButton) {
             console.log(`Event at ${event.link} is full, joining waitlist instead`);
             await waitlistButton.click();
-            await page.fill('input[type=email]', LOGIN_EMAIL)
-            await page.waitForLoadState('networkidle')
-            await page.click('button:has-text("Continue with Email")');
-            await page.fill('input[type=password]', LOGIN_PASSWORD)
-            await page.waitForLoadState('networkidle')
-            await page.click('button:has-text("Log in")'); // Sleep for 1 minute
+            // Login process
+            const isEmailVisible = await page.isVisible('input[type=email]');
+            if (isEmailVisible) {
+                await page.fill('input[type=email]', LOGIN_EMAIL);
+                await page.waitForLoadState('networkidle');
+                await page.click('button:has-text("Continue with Email")');
+                await page.fill('input[type=password]', LOGIN_PASSWORD);
+                await page.waitForLoadState('networkidle');
+                await page.click('button:has-text("Log in")');
+            }
             return true;
         }
         const joinButton = await page.$('button.Game_joinGameButton__a_XW1:has-text("Join")');
@@ -155,7 +159,7 @@ async function sendNotification(newEvents) {
             await page.goto(BASE_URL);
             await page.fill('input[type="text"]', CITY);
             await page.waitForLoadState('networkidle');
-            await page.keyboard.press('Enter');
+            await page.click('li:has-text("Philadelphia")');
 
             // Wait for the event cards to load
             await page.waitForTimeout(2000);
@@ -201,7 +205,8 @@ async function sendNotification(newEvents) {
             //     }
             // }
 
-            const matching_events = event_Cards.filter(event => event.title.includes('Co-Ed Volleyball 6 on 6*** BB Players***', ));
+            const matching_events = event_Cards.filter(event => event.title.includes('Co-Ed Volleyball 6 on 6*** BB Players***') || event.location.includes('Towey Playground'));
+
             console.log(`Found ${matching_events.length} matching events`);
 
             const newEvents = matching_events.filter(event => !notifiedEvents[event.link]);
