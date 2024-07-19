@@ -1,0 +1,25 @@
+{
+  "name": "volleyball_events",
+  "version": "1.0.0",
+  "description": "playwright, scrape, sports",
+  "main": "index.js",
+  "scripts": {
+    "scraper": "node event.tsx"
+  },
+  "keywords": [
+    "playwright",
+    "web",
+    "scraping"
+  ],
+  "author": "alphan yang",
+  "license": "ISC",
+  "dependencies": {
+    "playwright": "^1.10.0",
+    "random-useragent": "^0.5.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.2",
+    "@types/node": "^20.14.11",
+    "prettier": "3.3.3"
+  }
+}
