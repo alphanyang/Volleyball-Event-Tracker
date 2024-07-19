@@ -18,6 +18,29 @@ const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL;
 
+async function checkJoinability(page, event) {
+    try {
+        await page.goto(event.link, { waitUntil: 'networkidle' });
+        const waitlistButton = await page.$('button.Game_joinGameButton__a_XW1:has-text("Join Waitlist")')
+        if (waitlistButton) {
+            console.log(`Event at ${event.link} is full, joining waitlist instead`);
+            await waitlistButton.click();
+            await page.fill('input[type=email]', LOGIN_EMAIL)
+            await page.waitForLoadState('networkidle')
+            await page.click('button:has-text("Continue with Email")');
+            await page.fill('input[type=password]', LOGIN_PASSWORD)
+            await page.waitForLoadState('networkidle')
+            await page.click('button:has-text("Log in")'); // Sleep for 1 minute
+            return true;
+        }
+        const joinButton = await page.$('button.Game_joinGameButton__a_XW1:has-text("Join")');
+        return !!joinButton; // Returns true if join button exists, false otherwise
+    } catch (error) {
+        console.error(`Error checking joinability for ${event.link}:`, error);
+        return false;
+    }
+}
+
 async function joinEvent(page, url) {
     let retries = 3
     while (retries > 0) {
@@ -178,21 +201,31 @@ async function sendNotification(newEvents) {
             //     }
             // }
 
-            const matching_events = event_Cards.filter(event => event.title.includes('SUN | ALL LEVELS'));
-
+            const matching_events = event_Cards.filter(event => event.title.includes('Co-Ed Volleyball 6 on 6*** BB Players***', ));
             console.log(`Found ${matching_events.length} matching events`);
 
             const newEvents = matching_events.filter(event => !notifiedEvents[event.link]);
+            console.log(`New matching events: ${newEvents.length}`);
 
-            if (newEvents.length > 0) {
-                await sendNotification(newEvents);
-                newEvents.forEach(event => {
+            const joinableEvents = [];
+            for (const event of newEvents) {
+                const canJoin = await checkJoinability(page, event);
+                if (canJoin) {
+                    joinableEvents.push(event);
+                }
+            }
+
+            console.log(`Joinable events: ${joinableEvents.length}`);
+
+            if (joinableEvents.length > 0) {
+                await sendNotification(joinableEvents);
+                joinableEvents.forEach(event => {
                     notifiedEvents[event.link] = true;
                 });
                 saveNotifiedEvents(notifiedEvents);
-                console.log(`Sent notification for ${newEvents.length} new events`);
+                console.log(`Sent notification for ${joinableEvents.length} new joinable events`);
             } else {
-                console.log('No new matching events found');
+                console.log('No new joinable events found');
             }
 
             const logger = fs.createWriteStream('events.json', { flag: 'w' });
