@@ -216,6 +216,7 @@ async function sendNotification(newEvents) {
             for (const event of newEvents) {
                 const canJoin = await checkJoinability(page, event);
                 if (canJoin) {
+                    // @ts-ignore
                     joinableEvents.push(event);
                 }
             }
@@ -225,6 +226,7 @@ async function sendNotification(newEvents) {
             if (joinableEvents.length > 0) {
                 await sendNotification(joinableEvents);
                 joinableEvents.forEach(event => {
+                    // @ts-ignore
                     notifiedEvents[event.link] = true;
                 });
                 saveNotifiedEvents(notifiedEvents);
